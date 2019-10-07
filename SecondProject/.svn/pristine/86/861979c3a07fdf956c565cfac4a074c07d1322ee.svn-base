@@ -1,0 +1,130 @@
+package com.qs.web.servlet;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.beanutils.BeanUtils;
+
+import com.qs.javabean.Category;
+import com.qs.javabean.Orders;
+import com.qs.javabean.Tea;
+import com.qs.service.AddBackService;
+import com.qs.service.AlterBackService;
+import com.qs.service.ClassifyBackProductService;
+import com.qs.service.DeleteBackService;
+import com.qs.service.GainBackService;
+import com.qs.service.OrderServiceBack;
+import com.qs.service.impl.AddBackServiceImpl;
+import com.qs.service.impl.AlterBackServiceImpl;
+import com.qs.service.impl.ClassifyBackProductServiceImpl;
+import com.qs.service.impl.DeleteBackServiceImpl;
+import com.qs.service.impl.GainBackServiceImpl;
+import com.qs.service.impl.OrderServiceImplBack;
+import com.qs.utils.BaseServlet;
+import com.qs.utils.PageBean;
+
+/**bwj
+ * @author HASEE
+ *
+ */
+public class BackProductStrvlet extends BaseServlet {
+ //查
+	public String classify(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		ClassifyBackProductService service = new ClassifyBackProductServiceImpl();
+		List<Category> list = service.getClassifyService();
+		if (list != null && !"".equals(list)) {
+			request.setAttribute("list", list);
+		}
+		return "/admin/category/list.jsp";
+	}
+	
+	//删除
+	public String delete(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+	 String cids= request.getParameter("cid");
+	 DeleteBackService service = new DeleteBackServiceImpl();
+	 int cid = Integer.parseInt(cids);
+	 service.getDeleteService(cid);
+	return request.getContextPath()+"/backProductStrvlet?method=classify";
+	}
+	
+	//添加
+	public String add(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		String cname = request.getParameter("cname");
+        AddBackService service= new AddBackServiceImpl();
+        service.getAddService(cname);
+		return request.getContextPath()+"/backProductStrvlet?method=classify";
+	}
+	//修改商品分类使,获取商品分类信息
+	public String gain(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		 String cids= request.getParameter("cid");
+		 int cid = Integer.parseInt(cids);
+		 GainBackService service = new GainBackServiceImpl();
+		 Category list=service.getGainService(cid);
+		 if (list != null && !"".equals(list)) {
+				request.setAttribute("list", list);				
+			}
+		return "/admin/category/edit.jsp";
+	}
+	//修改商品信息
+	public String alter(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		String cname = request.getParameter("cname");
+		String cids = request.getParameter("cid");
+		int cid = Integer.parseInt(cids);
+		AlterBackService service = new AlterBackServiceImpl();
+		service.getAlterService(cid,cname);
+		return request.getContextPath()+"/backProductStrvlet?method=classify";
+	}
+	//订单
+	public String orderform(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		int currentPage =Integer.parseInt(request.getParameter("currentPage")); 
+		int pageSize = 1;
+		OrderServiceBack service = new OrderServiceImplBack();
+	   PageBean pageBean=service.orderform(currentPage,pageSize); 
+       request.setAttribute("pageBean", pageBean);
+		return  "/admin/orderform/list.jsp";
+      
+	}
+	//查看订单详细信息
+	public String seek(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		String oid = request.getParameter("oid");
+		String uid = request.getParameter("uid");
+	    OrderServiceBack service = new OrderServiceImplBack();
+		List<Orders> orders=service.SeekService(oid,uid);	
+		request.setAttribute("orders", orders);
+		return "/admin/orderform/order_info.jsp";
+      
+	}
+	//取消订单
+	public String cancle(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		String oid = request.getParameter("oid");
+		String currentPage = request.getParameter("currentPage");		
+		 OrderServiceBack service = new OrderServiceImplBack();
+		 service.CancleServlet(oid);
+		 //跳转到取消订单的当前页
+		 return request.getContextPath()+"/backProductStrvlet?method=orderform&currentPage="+currentPage;
+	}
+	//分页搜索
+	public String tea(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		Tea tea = new Tea();
+		try {
+			BeanUtils.populate(tea, request.getParameterMap());
+			int currentPage = 1;
+			int pageSize = 1;
+			 OrderServiceBack service = new OrderServiceImplBack();
+			 PageBean pageBean=service.tea(tea,currentPage,pageSize); 
+			 request.setAttribute("pageBean", pageBean);
+			 //在搜索框展示客户输入的信息
+			 request.setAttribute("tea", tea);
+			 return  "/admin/orderform/list.jsp";
+			 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+}

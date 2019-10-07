@@ -1,0 +1,19 @@
+package com.qs.service.impl;
+
+import java.util.List;
+
+import com.qs.dao.NewsDao;
+import com.qs.dao.impl.NewsDaoImpl;
+import com.qs.javabean.News;
+import com.qs.service.NewsService;
+
+public class NewsServiceImpl implements NewsService {
+
+	@Override
+	public List<News> getAllNews() {
+		NewsDao dao = new NewsDaoImpl();
+		
+		return dao.getAllNews();
+	}
+
+}

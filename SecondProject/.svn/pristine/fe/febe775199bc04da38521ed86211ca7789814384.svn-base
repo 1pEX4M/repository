@@ -1,0 +1,57 @@
+package com.qs.javabean;
+
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class Cart {
+	private double totalprice;
+	private Map<Integer, CartItem> cartItems = new LinkedHashMap<>();
+
+	public double getTotalprice() {
+		return totalprice;
+	}
+
+	public Collection getCartItems(){	
+		return cartItems.values();
+	}
+	
+	/*public Map<String, CartItem> getCartItems() {
+		return cartItems;
+	}*/
+
+	// 添加商品
+	public void add(CartItem cartItem){    // 1     ----   1  购物项
+		// 1.从cartItem中得到pid
+		int pid = cartItem.getProduct().getPid();
+		// 2.根据pid查询map是否包含该pid
+		if(cartItems.containsKey(pid)){
+			// 又重复项
+			CartItem exist_item = cartItems.get(pid);
+			// 增加数量
+			exist_item.setCountss(exist_item.getCountss() + cartItem.getCountss());
+		}else {
+			cartItems.put(pid, cartItem);
+		}
+		totalprice += cartItem.getSubtotal();
+	}
+	
+	// 减少数量
+	public void sub(int countss, String pid){
+		// 根据pid得到购物项对象
+		CartItem cartItem = cartItems.get(pid);
+		cartItem.setCountss(countss);
+	}
+	
+	// 根据商品id删除商品
+	public void remove(String pid){
+		CartItem cartItem = cartItems.remove(pid);
+		totalprice -= cartItem.getSubtotal();
+	}
+	// 清空购物车
+	public void clear(){
+		// 清空购物车，就是移除map中的数据
+		cartItems.clear();
+		totalprice = 0;
+	}
+}

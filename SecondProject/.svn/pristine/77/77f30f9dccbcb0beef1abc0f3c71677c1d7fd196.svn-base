@@ -1,0 +1,24 @@
+package com.qs.service.impl;
+
+import java.util.List;
+
+import com.qs.dao.CartDao;
+import com.qs.dao.impl.CartDaoImpl;
+import com.qs.javabean.ShippingAddress;
+import com.qs.service.CartService;
+
+public class CartServiceImpl implements CartService {
+
+	@Override
+	public void saveAddress(String username, String specific, String address, String phone, String telephone) {
+		CartDao dao = new CartDaoImpl();
+		dao.saveAddress(username, specific, address,  phone, telephone);
+	}
+
+	@Override
+	public List<ShippingAddress> getAddress() {
+		CartDao dao = new CartDaoImpl();
+		return dao.getAddress();
+	}
+
+}

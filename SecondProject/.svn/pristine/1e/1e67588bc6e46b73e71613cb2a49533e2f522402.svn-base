@@ -1,0 +1,72 @@
+package com.qs.web.servlet;
+
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.beanutils.BeanUtils;
+
+import com.qs.javabean.Condition;
+import com.qs.javabean.Product;
+import com.qs.service.ProductService;
+import com.qs.service.impl.ProductServiceImpl;
+import com.qs.utils.BaseServlet;
+
+public class ProductServlet extends BaseServlet {
+
+
+	public String getProductByPid(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String pid = request.getParameter("pid");
+		
+		ProductService service = new ProductServiceImpl();
+		Product product = service.getProductByPid(pid);
+		double a = product.getPrice()*0.8;
+		 DecimalFormat myformat = new  DecimalFormat("#####0.00");
+		String price = myformat.format(a);
+		String pic[] = product.getPimage().split(",");
+		product.setImagelist(Arrays.asList(pic));
+		request.setAttribute("product", product);
+		request.setAttribute("price", price);
+		
+		
+		return "/item_show.jsp";
+		
+	}
+	public String getProductListByCondition( HttpServletRequest request, HttpServletResponse response){
+		 //获取条件
+		String  cname =request.getParameter("cname");
+		String  size = request.getParameter("cname");
+		String color = request.getParameter("color");
+		String minPrice = request.getParameter("minPrice");
+		String maxPrice = request.getParameter("maxPrice");
+		
+		Condition condition = new Condition();
+		Map map = new HashMap();
+		map.put("cname", cname);
+		map.put("size", size);
+		map.put("color", color);
+		map.put("minPrice", minPrice);
+		map.put("maxPrice", maxPrice);
+		try {
+			BeanUtils.populate("condition", map);
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		} 
+		
+		ProductService service = new ProductServiceImpl();
+		
+		
+		
+		return null;
+	}
+	
+
+}

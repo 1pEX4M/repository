@@ -1,0 +1,12 @@
+package com.qs.dao;
+
+import com.qs.javabean.Cart;
+import com.qs.javabean.Product;
+
+public interface CartDao {
+
+	Product getProductByPid(String pid);
+
+	Cart getCart(String uid);
+
+}

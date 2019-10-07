@@ -1,0 +1,206 @@
+package com.qs.dao.impl;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
+import org.apache.commons.dbutils.handlers.MapListHandler;
+import org.apache.commons.dbutils.handlers.ScalarHandler;
+
+import com.qs.dao.OrderDaoBack;
+import com.qs.javabean.OrderItem;
+import com.qs.javabean.Orders;
+import com.qs.javabean.Product;
+import com.qs.javabean.Tea;
+import com.qs.javabean.User;
+import com.qs.utils.C3P0Utils;
+
+/**b'w'j
+ * @author HASEE
+ *
+ */
+public class OrderDaoImplBack implements OrderDaoBack {
+        //得到所有订单的数量
+	@Override
+	public int getorderform() {
+		QueryRunner query = new QueryRunner(C3P0Utils.getDataSource());
+		String sql = "select count(*) from orders ";
+		Long count ;
+		try {
+			count = (Long) query.query(sql,new ScalarHandler());
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException();
+		}
+		return count.intValue();
+	}
+	  //通过起始位置,拿到相应的得到订单的数据
+	@Override
+	public List<User> getorderformAndPage(int begin, int pageSize) {
+		QueryRunner query = new QueryRunner(C3P0Utils.getDataSource());
+		//通过起始位置,搜索相应的数据
+		String sql="select * from user  limit ?,? ";
+		List<User> list =null;
+	    try {
+	    	//执行sql语句,得到用用户数据
+			 list = query.query(sql, new BeanListHandler<>(User.class) ,begin,pageSize);	
+			 //因为一个用户可能对应多个订单,所有需要循环遍历
+			for (User user : list) {
+				//通过循环遍历,得到用户的uid,然后查询对应的订单
+			 sql = "select * from orders where uid = ?  ";
+			 List<Orders> orders = query.query(sql, new BeanListHandler<>(Orders.class),user.getUid());
+			 //健壮性判断
+			  if (orders != null && orders.size() > 0) {
+					 //因为一个订单可能对应多个订单项,所有需要循环遍历
+				for (Orders order : orders) {
+					//通过循环遍历,得到订单的oid,然后查询对应的订单和商品
+					sql = "select * from orderitem oi, product p where oi.pid = p.pid and oi.oid = ?";
+					List<Map<String, Object>> list2 = query.query(sql, new MapListHandler(), order.getOid());
+					 //健壮性判断
+					if (list2 != null && list2.size() > 0) {
+						 //遍历得到的订单项和商品
+					for (Map<String, Object> map : list2) {
+						//调用对象封装
+						OrderItem item = new OrderItem();
+						Product product = new Product();
+						//分离订单项和商品
+						BeanUtils.populate(item, map);
+						BeanUtils.populate(product, map);
+						//把商品封装到订单项
+						item.setProduct(product);
+						//让订单和订单项关联
+						item.setOrder(order);
+						//把订单项封装到订单中
+						order.getOrderItems().add(item);
+						//把订单封装到用户中
+						user.getOrderss().add(order);
+				 }
+				}
+			   }
+			  }
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+	 //展示订单详情
+	@Override
+	public List<Orders> SeekService(String oid,String uid) {
+		QueryRunner query = new QueryRunner(C3P0Utils.getDataSource());
+		//查询订单,降序排序
+		String sql = "select * from orders where uid = ? order by ordertime desc";
+		List<Orders> orders = null;
+		try {
+			 orders=query.query(sql, new BeanListHandler<>(Orders.class), uid);
+			if (orders != null && orders.size() > 0) {
+				for (Orders order : orders) {
+					sql = "select * from orderitem oi, product p where oi.pid = p.pid and oi.oid = ?";
+					List<Map<String, Object>> list = query.query(sql, new MapListHandler(), oid);
+					if (list != null && list.size() > 0) {
+						for (Map<String, Object> map : list) {
+							// 创建订单项对象
+							OrderItem item = new OrderItem();
+							// 创建商品对象
+							Product product = new Product();
+							// 使用beanutils，快速封装数据
+							BeanUtils.populate(item, map);
+							BeanUtils.populate(product, map);
+							String[] split = product.getPimage().split(",");
+							product.setImagelist(Arrays.asList(split));
+							// 将封装号的商品信息关联到订单项中
+							item.setProduct(product);
+							// 将订单项与订单进行关联
+							item.setOrder(order);
+							order.getOrderItems().add(item);
+							
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return orders;
+	}
+	   //取消订单
+	@Override
+	public void CancleServlet(String oid) {
+		QueryRunner query = new QueryRunner(C3P0Utils.getDataSource());
+		String sql="update orders set state= 5 where oid=? ";
+		try {
+			query.update(sql ,oid);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	 //查询多条件搜索是订单的数量
+	@Override
+	public int getTea(Tea tea) {
+		QueryRunner query = new QueryRunner(C3P0Utils.getDataSource());
+		String sql = "select count(*) from user u ,orders o where u.uid=o.uid and 1=1 ";
+		Long count ;
+		if (tea.getOid() != null && !(tea.getOid().equals(""))) {
+			sql += " and oid like '%"+tea.getOid()+"%'";
+		}
+		if (tea.getOrdertime() != null && !(tea.getOrdertime().equals(""))) {
+			sql += " and ordertime like '%"+tea.getOrdertime()+"%'";
+		}
+		if (tea.getUsername() != null && !(tea.getUsername().equals(""))) {
+			sql +=" and username like '%"+tea.getUsername()+"%'" ;
+		}
+		try {
+			//因为只需要得到查到信息的数量,所有这里不需要用map接收
+			 count = (Long) query.query(sql, new ScalarHandler());
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException();
+		}
+		return count.intValue();
+	}
+	//多条件搜索,分页展示
+	@Override
+	public List<User> getTeaAndPage(Tea tea, int begin, int pageSize) {
+		QueryRunner query = new QueryRunner(C3P0Utils.getDataSource());
+		String sql = "select * from user u ,orders o where u.uid=o.uid and 1=1 ";
+		List<User>userlist = null;
+		if (tea.getOid() != null && !(tea.getOid().equals(""))) {
+			sql += " and oid like '%"+tea.getOid()+"%'";
+		}
+		if (tea.getOrdertime() != null && !(tea.getOrdertime().equals(""))) {
+			sql += " and ordertime like '%"+tea.getOrdertime()+"%'";
+		}
+		if (tea.getUsername() != null && !(tea.getUsername().equals(""))) {
+			sql +=" and username like '%"+tea.getUsername()+"%'" ;
+		}
+		 sql  += " limit ?,?";
+		try {
+			List<Map<String, Object>> list = query.query(sql, new MapListHandler(),begin,pageSize);
+			if (list != null && list.size() > 0) {
+				//因为需要返回List<User>,所有这里我们创建一个,接收每次循环封装好的商品信息
+				userlist = new ArrayList<>();
+				for (Map<String, Object> map : list) {
+					User user = new User();
+					Orders orders = new Orders();
+					BeanUtils.populate(user, map);
+					BeanUtils.populate(orders, map);
+					user.getOrderss().add(orders);
+					userlist.add(user);
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return userlist;
+	}
+
+	
+
+}

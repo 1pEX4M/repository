@@ -1,0 +1,29 @@
+package com.qs.dao.impl;
+
+import java.sql.SQLException;
+import java.util.List;
+
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
+
+import com.qs.dao.NewsDao;
+import com.qs.javabean.News;
+import com.qs.utils.C3P0Utils;
+
+public class NewsDaoImpl implements NewsDao {
+
+	@Override
+	public List<News> getAllNews() {
+		QueryRunner query = new QueryRunner(C3P0Utils.getDataSource());
+		String sql = "select * from news";
+		List<News> query2 = null;
+		try {
+			query2 = query.query(sql, new BeanListHandler<>(News.class));
+		} catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+		return query2;
+	}
+
+}

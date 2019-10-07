@@ -1,0 +1,60 @@
+package com.qs.javabean;
+
+/**
+  `itemId` int(10) NOT NULL AUTO_INCREMENT,
+  `count` int(10) DEFAULT NULL,
+  `subtotal` double DEFAULT NULL,
+  `pid` int(32) DEFAULT NULL,
+  `oid` varchar(32) DEFAULT NULL,
+  PRIMARY KEY (`itemId`)
+	private String iid;
+	private int count;   //数量
+	private double subtotal;  //小计
+	private Book book;	//所购买的图书
+	private Order order;	//所属订单
+ */
+public class OrderItem {
+
+	private String itemid;
+	private Orders order;
+	private Product product;
+	private int counts;
+	private double subtotal;
+	public String getItemid() {
+		return itemid;
+	}
+	public void setItemid(String itemid) {
+		this.itemid = itemid;
+	}
+	public Orders getOrder() {
+		return order;
+	}
+	public void setOrder(Orders order) {
+		this.order = order;
+	}
+	public Product getProduct() {
+		return product;
+	}
+	public void setProduct(Product product) {
+		this.product = product;
+	}
+	public int getCounts() {
+		return counts;
+	}
+	public void setCounts(int counts) {
+		this.counts = counts;
+	}
+	public double getSubtotal() {
+		return subtotal;
+	}
+	public void setSubtotal(double subtotal) {
+		this.subtotal = subtotal;
+	}
+	@Override
+	public String toString() {
+		return "OrderItem [itemid=" + itemid + ", product=" + product + ", counts=" + counts
+				+ ", subtotal=" + subtotal + "]";
+	}
+	
+	
+}

@@ -1,0 +1,11 @@
+package com.qs.dao;
+
+import java.util.List;
+
+import com.qs.javabean.News;
+
+public interface NewsDao {
+
+	List<News> getAllNews();
+
+}

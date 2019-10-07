@@ -1,0 +1,63 @@
+package com.qs.web.servlet;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.qs.javabean.Cart;
+import com.qs.javabean.CartItem;
+import com.qs.javabean.Product;
+import com.qs.service.ProductService;
+import com.qs.service.impl.ProductServiceImpl;
+import com.qs.utils.BaseServlet;
+
+public class CartServlet extends BaseServlet {
+	
+	//  添加购物车
+	public String add(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	// 从session中获取购物车
+		Cart cart = (Cart) request.getSession().getAttribute("cart");
+		// 如果不存在则是第一次加入购物车 就创建一个购物车,并且将购物车放入session域中
+		if(cart == null) {
+			cart = new Cart();
+			request.getSession().setAttribute("cart", cart);
+		}
+		
+		// 2.得到商品 pid
+		String pid = request.getParameter("pid");
+		// 3.得到数量
+		int count = Integer.parseInt(request.getParameter("countss"));
+		// 4.调用商品的业务层，根据商品id查找商品信息
+		ProductService service = new ProductServiceImpl();
+		Product product = service.getProductByPid(pid);
+		String[] split = product.getPimage().split(",");
+		product.setImagelist(Arrays.asList(split));
+		// 5.封装购物项
+		CartItem cartItem = new CartItem();
+		cartItem.setCountss(count);
+		cartItem.setProduct(product);
+		// 6.将购物项添加到购物车中
+		cart.add(cartItem);
+		
+		return request.getContextPath() + "/udai_shopcart.jsp";
+	}
+	
+	// 删除购物车
+	public String delete(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		Cart cart = (Cart) request.getSession().getAttribute("cart");
+		String pid = request.getParameter("pid");
+		cart.remove(pid);
+		return request.getContextPath() + "/cart.jsp";
+	}
+
+	// 清空购物车
+	public String clear(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		Cart cart = (Cart) request.getSession().getAttribute("cart");
+		cart.clear();
+		return request.getContextPath() + "/cart.jsp";
+	}
+
+}

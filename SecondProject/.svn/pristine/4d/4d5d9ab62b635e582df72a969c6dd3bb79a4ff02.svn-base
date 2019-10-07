@@ -1,0 +1,32 @@
+package com.qs.dao.impl;
+
+import java.sql.SQLException;
+
+import org.apache.commons.dbutils.QueryRunner;
+
+import com.qs.dao.DeleteDao;
+import com.qs.utils.C3P0Utils;
+
+public class DeleteDaoImpl implements DeleteDao {
+
+	@Override
+	public void getDeleteService(int cid) {
+		QueryRunner query = new QueryRunner(C3P0Utils.getDataSource());
+		//SET FOREIGN_KEY_CHECKS=0;   外键失效
+		//SET FOREIGN_KEY_CHECKS=1   恢复外键
+		System.out.println(cid);
+		String ss=""+cid;
+		System.out.println(ss);
+		String sql1="SET FOREIGN_KEY_CHECKS=0";
+		String sql2="delete  from category where cid=?";
+		String sql3="SET FOREIGN_KEY_CHECKS=1";
+		try {
+			query.update(sql1);
+			query.update(sql2,ss);
+			query.update(sql3);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+}

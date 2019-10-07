@@ -1,0 +1,40 @@
+package com.qs.javabean;
+
+public class Category {
+          private int cid;
+          private String parenId;
+          private String cname;
+		public Category(int cid, String parenId, String cname) {
+			super();
+			this.cid = cid;
+			this.parenId = parenId;
+			this.cname = cname;
+		}
+		public int getCid() {
+			return cid;
+		}
+		public void setCid(int cid) {
+			this.cid = cid;
+		}
+		public String getParenId() {
+			return parenId;
+		}
+		public void setParenId(String parenId) {
+			this.parenId = parenId;
+		}
+		public String getCname() {
+			return cname;
+		}
+		public void setCname(String cname) {
+			this.cname = cname;
+		}
+		public Category() {
+			super();
+			
+		}
+		@Override
+		public String toString() {
+			return "category [cid=" + cid + ", parenId=" + parenId + ", cname=" + cname + "]";
+		}
+          
+}

@@ -1,0 +1,71 @@
+package com.qs.web.servlet;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.qs.javabean.Category;
+import com.qs.service.AddBackService;
+import com.qs.service.AlterBackService;
+import com.qs.service.ClassifyBackProductService;
+import com.qs.service.DeleteBackService;
+import com.qs.service.GainBackService;
+import com.qs.service.impl.AddBackServiceImpl;
+import com.qs.service.impl.AlterBackServiceImpl;
+import com.qs.service.impl.ClassifyBackProductServiceImpl;
+import com.qs.service.impl.DeleteBackServiceImpl;
+import com.qs.service.impl.GainBackServiceImpl;
+import com.qs.utils.BaseServlet;
+import com.qs.utils.UUIDUtils;
+
+public class BackProductStrvlet extends BaseServlet {
+
+	public String classify(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		ClassifyBackProductService service = new ClassifyBackProductServiceImpl();
+		List<Category> list = service.getClassifyService();
+		if (list != null && !"".equals(list)) {
+			request.setAttribute("list", list);
+		}
+		return "/admin/category/list.jsp";
+	}
+	
+	public String delete(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+	 String cids= request.getParameter("cid");
+	 DeleteBackService service = new DeleteBackServiceImpl();
+	 int cid = Integer.parseInt(cids);
+	 service.getDeleteService(cid);
+	return request.getContextPath()+"/backProductStrvlet?method=classify";
+	}
+	public String add(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		String cname = request.getParameter("cname");
+        AddBackService service= new AddBackServiceImpl();
+        service.getAddService(cname);
+		return request.getContextPath()+"/backProductStrvlet?method=classify";
+	}
+	public String gain(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		 String cids= request.getParameter("cid");
+		 int cid = Integer.parseInt(cids);
+		 GainBackService service = new GainBackServiceImpl();
+		 Category list=service.getGainService(cid);
+		 if (list != null && !"".equals(list)) {
+				request.setAttribute("list", list);				
+			}
+		return "/admin/category/edit.jsp";
+	}
+	public String alter(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		String cname = request.getParameter("name");
+		String cids = request.getParameter("cid");
+		int cid = Integer.parseInt(cids);
+		AlterBackService service = new AlterBackServiceImpl();
+		service.getAlterService(cid,cname);
+		return request.getContextPath()+"/backProductStrvlet?method=classify";
+	}
+	
+	public String orderform(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+     
+		return  null;
+	}
+}

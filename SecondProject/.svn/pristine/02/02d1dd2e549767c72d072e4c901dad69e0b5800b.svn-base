@@ -1,0 +1,55 @@
+package com.qs.web.listener;
+
+import java.util.Arrays;
+import java.util.List;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
+import com.qs.javabean.Category;
+import com.qs.javabean.News;
+import com.qs.javabean.Product;
+import com.qs.service.NewsService;
+import com.qs.service.ProductService;
+import com.qs.service.impl.NewsServiceImpl;
+import com.qs.service.impl.ProductServiceImpl;
+
+import jdk.nashorn.internal.ir.RuntimeNode.Request;
+
+public class MyServletContextListener implements ServletContextListener {
+
+    public void contextDestroyed(ServletContextEvent event)  { 
+    }
+
+    public void contextInitialized(ServletContextEvent event)  { 
+    	
+    	/* (non-Javadoc)
+    	 * @张玉环
+    	 * 新闻信息
+    	 */
+    	NewsService service1 = new NewsServiceImpl();
+    	List<News> news = service1.getAllNews();
+    	event.getServletContext().setAttribute("news", news);
+    	
+    	
+    	/* (non-Javadoc)
+    	 * 张玉环
+    	 * @see 调用service层的方法得到所有商品和商品分类信息
+    	 */
+    	
+    	ProductService service = new ProductServiceImpl();
+    	List<Category> category = service.getAllCategory();
+    	
+    	List<Product> product = service.getAllProduct();
+//    	遍历商品信息把图片地址进行切割.存入集合
+    	for (Product product2 : product) {
+			String pic[] = product2.getPimage().split(",");
+			product2.setImagelist(Arrays.asList(pic));
+			
+		}
+//    	把商品信息和分类信息存入ServlertContext 域中
+    	event.getServletContext().setAttribute("productlist", product);
+    	event.getServletContext().setAttribute("categorylist", category);
+    }
+	
+}

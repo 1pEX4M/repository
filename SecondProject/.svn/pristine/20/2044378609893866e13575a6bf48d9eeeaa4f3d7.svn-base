@@ -1,0 +1,7 @@
+package com.qs.dao;
+
+public interface DeleteDao {
+
+	void getDeleteService(int cid);
+
+}

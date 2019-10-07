@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- xml文件中必须有且仅有一个根标签 -->
+<c3p0-config>
+  <default-config>
+  	<!-- 
+  		name: 对应核心类中的相关属性名
+  	 -->
+    <property name="driverClass">com.mysql.jdbc.Driver</property>
+    <property name="jdbcUrl">jdbc:mysql://localhost:3306/udai</property>
+    <property name="user">root</property>
+    <property name="password">123</property>
+  </default-config>
+
+</c3p0-config>
